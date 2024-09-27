@@ -18,7 +18,7 @@ const App = () => {
       .then((res) => res.json())
       .then((data) => {
         setTodos(data);
-        updateCounts(data); // Update counts after setting todos
+        updateCounts(data);
       })
       .catch((error) => {
         console.error("Fetch error:", error);
@@ -29,7 +29,7 @@ const App = () => {
     const { total, completed, notCompleted } = todos.reduce(
       (acc, todo) => {
         acc.total += 1;
-        if (todo.completed === 1) {
+        if (todo.completed) {
           acc.completed += 1;
         } else {
           acc.notCompleted += 1;
@@ -84,7 +84,7 @@ const App = () => {
             value={task}
             onChange={handleInputChange}
             placeholder="Add a new task"
-            className="flex-1 p-2 border border-gray-700 rounded-l-md bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 p-2 h-20 border border-gray-700 rounded-l-md bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="submit"
@@ -93,19 +93,19 @@ const App = () => {
               e.preventDefault();
               handleAddTask();
             }}
-            className="bg-blue-500 text-white px-7 py-5 text-4xl font-bold rounded-r-md hover:bg-blue-600 transition duration-200"
+            className="bg-blue-500 text-white px-7  text-4xl font-bold rounded-r-md hover:bg-blue-600 transition duration-200"
           />
         </div>
       </form>
 
-      {/* tabs */}
-      <ul className="mt-5 flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
+      {/* Tabs */}
+      <ul className="mt-5 flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200">
         <li className="me-2" onClick={() => setTab("all")}>
           <a
             href="#"
             className={`${
               tab === "all" ? "text-blue-400 bg-slate-800" : ""
-            } inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300`}
+            } inline-block p-4 rounded-t-lg hover:text-gray-200 hover:bg-gray-800`}
           >
             All ({counts.total})
           </a>
@@ -115,7 +115,7 @@ const App = () => {
             href="#"
             className={`${
               tab === "active" ? "text-blue-400 bg-slate-800" : ""
-            } inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300`}
+            } inline-block p-4 rounded-t-lg hover:text-gray-200 hover:bg-gray-800`}
           >
             Active ({counts.notCompleted})
           </a>
@@ -125,7 +125,7 @@ const App = () => {
             href="#"
             className={`${
               tab === "completed" ? "text-blue-400 bg-slate-800" : ""
-            } inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300`}
+            } inline-block p-4 rounded-t-lg hover:text-gray-200 hover:bg-gray-800`}
           >
             Completed ({counts.completed})
           </a>
@@ -146,21 +146,18 @@ const App = () => {
 
         {tab === "active" && (
           <>
-            {todos.some((todoItem) => todoItem.completed === 0) ? (
-              todos.map((todoItem) => {
-                if (!todoItem.completed) {
-                  return (
-                    <TodoItem
-                      key={todoItem.id}
-                      todo={todoItem.title}
-                      id={todoItem.id}
-                      completed={todoItem.completed}
-                      fetchTodos={fetchTodos}
-                    />
-                  );
-                }
-                return null;
-              })
+            {todos.filter((todoItem) => !todoItem.completed).length > 0 ? (
+              todos
+                .filter((todoItem) => !todoItem.completed)
+                .map((todoItem) => (
+                  <TodoItem
+                    key={todoItem.id}
+                    todo={todoItem.title}
+                    id={todoItem.id}
+                    completed={todoItem.completed}
+                    fetchTodos={fetchTodos}
+                  />
+                ))
             ) : (
               <p>No Active tasks</p>
             )}
@@ -169,27 +166,25 @@ const App = () => {
 
         {tab === "completed" && (
           <>
-            {todos.some((todoItem) => todoItem.completed) ? (
-              todos.map((todoItem) => {
-                if (todoItem.completed) {
-                  return (
-                    <TodoItem
-                      key={todoItem.id}
-                      todo={todoItem.title}
-                      id={todoItem.id}
-                      completed={todoItem.completed}
-                      fetchTodos={fetchTodos}
-                    />
-                  );
-                }
-                return null;
-              })
+            {todos.filter((todoItem) => todoItem.completed).length > 0 ? (
+              todos
+                .filter((todoItem) => todoItem.completed)
+                .map((todoItem) => (
+                  <TodoItem
+                    key={todoItem.id}
+                    todo={todoItem.title}
+                    id={todoItem.id}
+                    completed={todoItem.completed}
+                    fetchTodos={fetchTodos}
+                  />
+                ))
             ) : (
               <p>No completed tasks</p>
             )}
           </>
         )}
       </div>
+
       <Toaster position="top-center" reverseOrder={false} />
     </div>
   );

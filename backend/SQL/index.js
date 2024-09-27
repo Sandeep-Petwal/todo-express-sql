@@ -24,12 +24,38 @@ connection.connect((err) => {
 });
 
 app.get("/", (req, res) => {
-    res.send("welcome to todos api !")
+    res.json({ "/todos": "Get the all todos" },)
 })
 
 // get all todos
 app.get("/todos", (req, res) => {
     const sql = 'SELECT * FROM todos';
+    connection.query(sql, (err, results) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(results);
+    });
+})
+
+// get all todos with limit
+app.get("/todos/limit/:lim", (req, res) => {
+    const lim = parseInt(req.params.lim, 10);
+    const sql = 'SELECT * FROM todos LIMIT ?';
+    connection.query(sql, [lim], (err, results) => {
+        if (err) {
+            // res.send(`limit ${lim}`)
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(results);
+    });
+})
+
+// get all todos order by last updated
+app.get("/todos/order/update", (req, res) => {
+    const sql = 'SELECT * FROM todos ORDER BY updated_at DESC';
     connection.query(sql, (err, results) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -85,7 +111,8 @@ app.delete("/todos/:id", (req, res) => {
             res.status(500).json({ error: err.message });
             return;
         }
-        res.status(201).send({ message: `Todo with id ${id} deleted successfully !` })
+        if (results.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
+        res.status(201).json({ message: "Deleted successfully !" })
     })
 })
 
