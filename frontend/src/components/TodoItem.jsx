@@ -21,24 +21,37 @@ const TodoItem = ({ todo, id, fetchTodos, completed }) => {
   }, [showModal]);
 
   const onRemove = (id) => {
-    fetch(`http://localhost:3005/todos/${id}`, {
+    const token = localStorage.getItem('uid');  // Retrieve token from localStorage
+  
+    console.log("Deleting item with id : " + id);
+    fetch(`http://localhost:3005/api/todos/${id}`, {
       method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,  // Include token in Authorization header
+      },
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Item not found");
         }
         toast.error("Item deleted !");
-        fetchTodos();
+        fetchTodos();  // Refresh the todos
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => {
+        toast.error("Error while deleting  !");
+        console.error("Error:", error);
+      });
   };
+  
 
   const updateTodo = (newValue, id, completed = false) => {
-    fetch(`http://localhost:3005/todos/${id}`, {
+    const token = localStorage.getItem('uid');  // Retrieve token from localStorage
+  
+    fetch(`http://localhost:3005/api/todos/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,  // Include token in Authorization header
       },
       body: JSON.stringify({
         title: newValue,
@@ -53,11 +66,12 @@ const TodoItem = ({ todo, id, fetchTodos, completed }) => {
       })
       .then((data) => {
         toast.success("Updated Successfully.");
-        fetchTodos();
+        fetchTodos();  // Refresh the todos
         console.log(data);
       })
       .catch((error) => console.error("Error:", error));
   };
+  
 
   const onEdit = (id) => {
     setModalValue(todo); // Set current todo value to modal input
